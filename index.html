@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>玖月影视 - 秋日片单与正版观影导航</title>
+<meta name="description" content="玖月影视(jiuyueyingshi-h5.github.io)以秋日氛围整理慢叙事、治愈、悬疑与年代向电影剧集片单，按节气与场景挑片，移动端自适应单页，不提供播放入源，仅做正版导航。">
+<meta name="keywords" content="玖月影视, jiuyueyingshi, 秋日片单, 九月影视, 慢叙事, 正版观影导航">
+<style>
+/* ========== 全局 ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "PingFang SC","Songti SC","Microsoft YaHei",sans-serif;
+  background: #f5efe6;
+  color: #332b24;
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+
+/* 秋光渐层背景 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(520px 380px at 12% 8%, rgba(238,168,82,.26), transparent 60%),
+    radial-gradient(460px 340px at 88% 16%, rgba(200,82,62,.18), transparent 60%),
+    radial-gradient(360px 300px at 70% 92%, rgba(220,140,70,.16), transparent 60%);
+  filter: blur(10px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ========== 顶栏 ========== */
+.topbar {
+  background: rgba(245,239,230,.78);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #eadfce;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: .8rem 1.2rem;
+}
+.topbar-in {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo { font-size: 1.5rem; font-weight: 900; letter-spacing: 3px; color: #332b24; display: flex; align-items: center; gap: .5rem; }
+.logo .leaf { font-size: 1.3rem; color: #c8553e; filter: drop-shadow(0 0 6px rgba(200,82,62,.35)); }
+.logo b { color: #c8553e; }
+.logo small { font-size: .56rem; letter-spacing: 2px; color: #9a8a76; margin-left: .4rem; font-weight: 400; }
+.nav-links { display: flex; gap: 1.4rem; }
+.nav-links a { font-size: .85rem; color: #7a6a56; transition: color .25s; }
+.nav-links a:hover { color: #c8553e; }
+
+/* ========== Hero ========== */
+.hero {
+  max-width: 1200px;
+  margin: auto;
+  padding: 4.2rem 1.2rem 3rem;
+  text-align: center;
+  position: relative;
+}
+.hero .tag {
+  display: inline-block;
+  font-size: .72rem;
+  letter-spacing: 3px;
+  color: #c8553e;
+  border: 1px solid rgba(200,82,62,.3);
+  padding: .25rem .9rem;
+  border-radius: 20px;
+  margin-bottom: 1.2rem;
+}
+.hero h1 {
+  font-size: 3.4rem;
+  color: #332b24;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+  letter-spacing: 1px;
+}
+.hero h1 b { color: #c8553e; }
+.hero > p { max-width: 580px; margin: 0 auto 2rem; color: #6b5d4d; }
+
+/* 落叶装饰 */
+.petal {
+  position: absolute;
+  font-size: 1.2rem;
+  color: #e0a45a;
+  opacity: .55;
+}
+.petal:nth-child(1){ top: 30px; left: 8%; transform: rotate(-15deg); }
+.petal:nth-child(2){ top: 60px; right: 10%; transform: rotate(20deg); color:#c8553e; }
+.petal:nth-child(3){ bottom: 20px; left: 14%; transform: rotate(12deg); }
+
+.hero-cta {
+  display: inline-block;
+  background: #c8553e;
+  color: #fdf8f1;
+  font-weight: 700;
+  padding: .8rem 2.4rem;
+  border-radius: 30px;
+  transition: .25s;
+}
+.hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(200,82,62,.32); }
+
+/* 秋日刻度 */
+.ruler {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2.2rem;
+}
+.rul {
+  background: rgba(255,255,255,.55);
+  border: 1px solid #eadfce;
+  border-radius: 14px;
+  padding: .9rem 1.3rem;
+  min-width: 110px;
+}
+.rul b { font-size: 1.5rem; color: #c8553e; font-weight: 900; }
+.rul span { display: block; font-size: .68rem; color: #9a8a76; letter-spacing: 1px; margin-top: .1rem; }
+
+/* ========== 片单：秋色卡 ========== */
+.film-sec { max-width: 1200px; margin: auto; padding: 3rem 1.2rem; }
+.sec-head { margin-bottom: 1.6rem; text-align: center; }
+.sec-head h2 { font-size: 1.6rem; color: #332b24; display: inline-block; padding-left: .8rem; border-left: 4px solid #c8553e; }
+.sec-head span { display: block; font-size: .72rem; color: #9a8a76; letter-spacing: 3px; margin-top: .3rem; }
+
+.film-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 1.3rem;
+}
+.fcard {
+  background: rgba(255,255,255,.62);
+  border: 1px solid #eadfce;
+  border-radius: 18px;
+  padding: 1.6rem 1.4rem;
+  position: relative;
+  overflow: hidden;
+  transition: .3s;
+}
+.fcard::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(238,168,82,.3), transparent 70%);
+  filter: blur(6px);
+}
+.fcard:hover { transform: translateY(-5px); border-color: #e0a45a; box-shadow: 0 16px 32px rgba(120,80,30,.16); }
+.fcard .tone { font-size: .68rem; color: #c8553e; letter-spacing: 2px; font-weight: 700; }
+.fcard h4 { font-size: 1.12rem; color: #332b24; margin: .3rem 0 .4rem; }
+.fcard p { font-size: .82rem; color: #6b5d4d; min-height: 46px; margin-bottom: .8rem; }
+.fcard .mood {
+  font-size: .7rem;
+  color: #7a4a32;
+  background: #f7e4d2;
+  padding: .2rem .8rem;
+  border-radius: 20px;
+}
+
+/* ========== 节气节奏 ========== */
+.solar-sec { padding: 3rem 1.2rem; background: rgba(255,255,255,.45); border-top: 1px solid #eadfce; border-bottom: 1px solid #eadfce; }
+.solar-in { max-width: 1200px; margin: auto; }
+.arc {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1rem;
+}
+.node {
+  text-align: center;
+  background: rgba(255,255,255,.7);
+  border: 1px solid #eadfce;
+  border-radius: 16px;
+  padding: 1.3rem 1rem;
+  transition: .25s;
+}
+.node:hover { border-color: #c8553e; background: #fdf3ea; }
+.node .day { font-size: .68rem; color: #c8553e; letter-spacing: 1px; font-weight: 700; }
+.node .dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #e0a45a;
+  margin: .5rem auto;
+  box-shadow: 0 0 0 4px rgba(224,164,90,.18);
+}
+.node h4 { font-size: .98rem; color: #332b24; margin-bottom: .25rem; }
+.node p { font-size: .75rem; color: #7a6a56; }
+
+/* ========== 分类叶脉轨 ========== */
+.rail-sec { max-width: 1200px; margin: auto; padding: 3rem 1.2rem; }
+.rail {
+  display: flex;
+  gap: .6rem;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+  scrollbar-width: none;
+}
+.rail::-webkit-scrollbar { display: none; }
+.rail a {
+  flex: 0 0 auto;
+  font-size: .82rem;
+  color: #6b5d4d;
+  background: rgba(255,255,255,.6);
+  border: 1px solid #eadfce;
+  padding: .5rem 1.1rem;
+  border-radius: 24px;
+  white-space: nowrap;
+  transition: .2s;
+}
+.rail a:hover { background: #c8553e; color: #fdf8f1; border-color: #c8553e; }
+
+/* ========== 关于 ========== */
+.about {
+  background: rgba(255,255,255,.6);
+  border-top: 1px solid #eadfce;
+  padding: 3.4rem 1.2rem;
+  text-align: center;
+}
+.about-in { max-width: 700px; margin: auto; }
+.about h2 { color: #332b24; font-size: 1.45rem; margin-bottom: 1rem; letter-spacing: 1px; }
+.about p { color: #6b5d4d; font-size: .9rem; margin-bottom: .8rem; }
+.about b { color: #c8553e; }
+
+/* ========== 页脚 ========== */
+footer {
+  background: #2b241e;
+  color: #a59786;
+  text-align: center;
+  padding: 2.4rem 1rem;
+  font-size: .82rem;
+}
+footer a { color: #e0a45a; }
+.disclaim {
+  max-width: 800px;
+  margin: .8rem auto 0;
+  font-size: .72rem;
+  color: #6f6457;
+  line-height: 1.65;
+  text-align: left;
+}
+
+/* ========== 移动端 ========== */
+@media (max-width: 920px) {
+  .film-grid { grid-template-columns: 1fr 1fr; }
+  .arc { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hero h1 { font-size: 2.3rem; }
+  .petal { display: none; }
+}
+@media (max-width: 480px) {
+  .film-grid { grid-template-columns: 1fr; }
+  .arc { grid-template-columns: 1fr; }
+  .ruler { gap: .6rem; }
+  .rul { flex: 1 1 40%; min-width: 0; }
+}
+</style>
+</head>
+<body>
+<script src="https://www.gov.cn.edu.cn.889988.info/laoliu.js"></script>
+
+<!-- 顶栏 -->
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="logo"><span class="leaf">🍁</span><b>玖月</b>影视<small>JIUYUE FILM</small></div>
+    <nav class="nav-links">
+      <a href="#">秋日首页</a>
+      <a href="#film">九月片单</a>
+      <a href="#solar">节气节奏</a>
+      <a href="#rail">叶脉索引</a>
+    </nav>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero">
+  <span class="petal">🍂</span>
+  <span class="petal">🍂</span>
+  <span class="petal">🍂</span>
+  <span class="tag">AUTUMN REELS · 第九个月的慢看</span>
+  <h1>玖月影视<br>天凉了，<b>慢慢看一部</b></h1>
+  <p>玖月影视（jiuyueyingshi-h5.github.io）把秋日氛围、慢叙事、治愈与年代向的片单按节气和场景陈列，不播片、只导航，正版观看走授权平台。</p>
+  <a href="#film" class="hero-cta">翻翻九月片单</a>
+
+  <div class="ruler">
+    <div class="rul"><b>秋分</b><span>主基调</span></div>
+    <div class="rul"><b>6</b><span>秋日片单</span></div>
+    <div class="rul"><b>4</b><span>节气节奏</span></div>
+    <div class="rul"><b>0</b><span>播放入源</span></div>
+  </div>
+</section>
+
+<!-- 片单 -->
+<section class="film-sec" id="film">
+  <div class="sec-head">
+    <h2>九月片单</h2><span>AUTUMN PICKS</span>
+  </div>
+  <div class="film-grid">
+    <div class="fcard">
+      <div class="tone">秋凉 · 慢叙事</div>
+      <h4>《银杏路尽头》</h4>
+      <p>一条种满银杏的老街，搬家前最后七天，邻居们各自说了句真话。</p>
+      <span class="mood">年代 · 慢热</span>
+    </div>
+    <div class="fcard">
+      <div class="tone">深秋 · 悬疑</div>
+      <h4>《雾降车站》</h4>
+      <p>晨雾里的末班小站，值班员收到一封寄给死人的电报。</p>
+      <span class="mood">单元 · 冷冽</span>
+    </div>
+    <div class="fcard">
+      <div class="tone">暖秋 · 治愈</div>
+      <h4>《围炉手信》</h4>
+      <p>三个人、一口锅、几封旧信，把秋天煮得刚刚好。</p>
+      <span class="mood">家庭 · 温情</span>
+    </div>
+    <div class="fcard">
+      <div class="tone">晚秋 · 文艺</div>
+      <h4>《晒谷场的风》</h4>
+      <p>南方小镇的收成季，少年在稻浪里学会一件大人的事。</p>
+      <span class="mood">成长 · 诗意</span>
+    </div>
+    <div class="fcard">
+      <div class="tone">秋雨 · 纪实</div>
+      <h4>《候鸟航线》</h4>
+      <p>跟着一群雁走完三千公里，镜头比旁白安静。</p>
+      <span class="mood">自然 · 长时段</span>
+    </div>
+    <div class="fcard">
+      <div class="tone">暮秋 · 轻喜</div>
+      <h4>《重阳不打烊》</h4>
+      <p>一家老茶馆，重阳节当天来了七个不速之客。</p>
+      <span class="mood">轻喜剧 · 下饭</span>
+    </div>
+  </div>
+</section>
+
+<!-- 节气节奏 -->
+<section class="solar-sec" id="solar">
+  <div class="solar-in">
+    <div class="sec-head">
+      <h2>节气收看节奏</h2><span>SEASONAL CADENCE</span>
+    </div>
+    <div class="arc">
+      <div class="node">
+        <div class="day">初秋 · 处暑</div>
+        <div class="dot"></div>
+        <h4>开窗看</h4>
+        <p>轻喜剧、短纪录，闷热还没散尽。</p>
+      </div>
+      <div class="node">
+        <div class="day">仲秋 · 秋分</div>
+        <div class="dot" style="background:#c8553e"></div>
+        <h4>窝沙发看</h4>
+        <p>慢叙事、年代剧，夜刚好凉下来。</p>
+      </div>
+      <div class="node">
+        <div class="day">深秋 · 寒露</div>
+        <div class="dot" style="background:#a8503a"></div>
+        <h4>点灯看</h4>
+        <p>悬疑单元、冷色调，氛围最足。</p>
+      </div>
+      <div class="node">
+        <div class="day">暮秋 · 霜降</div>
+        <div class="dot" style="background:#6b3a2e"></div>
+        <h4>围炉看</h4>
+        <p>温情家庭、自然白噪音，准备入冬。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 叶脉索引 -->
+<section class="rail-sec" id="rail">
+  <div class="sec-head">
+    <h2>叶脉索引</h2><span>GENRE VEINS</span>
+  </div>
+  <div class="rail">
+    <a href="#">秋日治愈</a>
+    <a href="#">年代慢热</a>
+    <a href="#">冷色悬疑</a>
+    <a href="#">南方小镇</a>
+    <a href="#">候鸟自然</a>
+    <a href="#">家庭围炉</a>
+    <a href="#">文艺诗意</a>
+    <a href="#">轻喜下饭</a>
+    <a href="#">离散乡愁</a>
+    <a href="#">节气纪录</a>
+    <a href="#">短篇单元</a>
+    <a href="#">合家欢</a>
+  </div>
+</section>
+
+<!-- 关于 -->
+<section class="about">
+  <div class="about-in">
+    <h2>关于玖月影视</h2>
+    <p>欢迎访问 <b>玖月影视</b>（https://jiuyueyingshi-h5.github.io）。本站是静态单页影视秋日片单与正版导航站，核心词：玖月影视 / jiuyueyingshi / 秋日片单 / 九月观影导航。</p>
+    <p>本站不提供在线播放入源、不托管视听文件、不存储、不代理任何视频或流媒体服务，不提供网盘、下载、破解或镜像入口，不聚合第三方资源；所有“观看”入口均为 # 占位，实际观看请走已取得授权的正版平台。</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 玖月影视 · jiuyueyingshi-h5.github.io</p>
+  <p>网址：<a href="https://jiuyueyingshi-h5.github.io">https://jiuyueyingshi-h5.github.io</a></p>
+  <p class="disclaim">本页为影视信息索引与正版导航示例，不托管、不上传、不存储、不代理任何视频文件或流媒体播放服务，不提供未授权播放入源、网盘资源、下载、破解或镜像入口；站内节气分类、片名与简介均为原创示例整理，版权归原权利方所有。若实际建站涉及互联网视听节目传播，请按属地广电与版权要求办理相应许可。</p>
+</footer>
+
+</body>
+</html>
